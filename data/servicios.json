@@ -5,10 +5,26 @@
       "nombre": "Página web corporativa",
       "precio_base": 5000,
       "modulos": [
-        { "id": 1, "nombre": "Carrito de compras", "precio": 1500 },
-        { "id": 2, "nombre": "Panel de administración", "precio": 2000 },
-        { "id": 3, "nombre": "Blog / Noticias", "precio": 800 },
-        { "id": 4, "nombre": "Chat en vivo", "precio": 600 }
+        {
+          "id": 1,
+          "nombre": "Carrito de compras",
+          "precio": 1600
+        },
+        {
+          "id": 2,
+          "nombre": "Panel de administración",
+          "precio": 2000
+        },
+        {
+          "id": 3,
+          "nombre": "Blog / Noticias",
+          "precio": 800
+        },
+        {
+          "id": 4,
+          "nombre": "Chat en vivo",
+          "precio": 600
+        }
       ]
     },
     {
@@ -16,9 +32,21 @@
       "nombre": "Aplicación móvil",
       "precio_base": 8000,
       "modulos": [
-        { "id": 5, "nombre": "Notificaciones push", "precio": 1000 },
-        { "id": 6, "nombre": "Integración con pagos", "precio": 2500 },
-        { "id": 7, "nombre": "Modo offline", "precio": 1800 }
+        {
+          "id": 5,
+          "nombre": "Notificaciones push",
+          "precio": 1000
+        },
+        {
+          "id": 6,
+          "nombre": "Integración con pagos",
+          "precio": 2500
+        },
+        {
+          "id": 7,
+          "nombre": "Modo offline",
+          "precio": 1800
+        }
       ]
     },
     {
@@ -26,10 +54,26 @@
       "nombre": "Sistema de gestión (ERP)",
       "precio_base": 12000,
       "modulos": [
-        { "id": 8,  "nombre": "Módulo de facturación", "precio": 3000 },
-        { "id": 9,  "nombre": "Control de inventario", "precio": 2500 },
-        { "id": 10, "nombre": "Reportes y estadísticas", "precio": 1500 },
-        { "id": 11, "nombre": "Gestión de usuarios y roles", "precio": 2000 }
+        {
+          "id": 8,
+          "nombre": "Módulo de facturación",
+          "precio": 3000
+        },
+        {
+          "id": 9,
+          "nombre": "Control de inventario",
+          "precio": 2500
+        },
+        {
+          "id": 10,
+          "nombre": "Reportes y estadísticas",
+          "precio": 1500
+        },
+        {
+          "id": 11,
+          "nombre": "Gestión de usuarios y roles",
+          "precio": 2000
+        }
       ]
     }
   ]
