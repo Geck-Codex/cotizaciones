@@ -3,7 +3,7 @@
     {
       "id": 1,
       "nombre": "Página web corporativa",
-      "precio_base": 5000,
+      "precio_base": 6000,
       "modulos": [
         {
           "id": 1,
