@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Cotis — Cotizador de proyectos</title>
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body>
+
+  <!-- ===== HEADER ===== -->
+  <header class="header">
+    <div class="container header__inner">
+      <div class="header__brand">
+        <span class="header__logo">◈</span>
+        <span class="header__title">Cotis</span>
+      </div>
+      <nav class="header__nav">
+        <button class="btn btn--ghost" id="btn-ver-cotizacion">
+          Ver cotización
+          <span class="badge" id="badge-items">0</span>
+        </button>
+      </nav>
+    </div>
+  </header>
+
+  <!-- ===== MAIN ===== -->
+  <main class="container main">
+
+    <!-- Panel izquierdo: catálogo de servicios -->
+    <section class="panel panel--catalog" id="panel-catalog">
+      <div class="panel__header">
+        <h2 class="panel__title">Servicios disponibles</h2>
+        <button class="btn btn--primary btn--sm" id="btn-nuevo-servicio">+ Nuevo servicio</button>
+      </div>
+      <div class="servicios-list" id="servicios-list">
+        <!-- Los servicios se renderizan aquí via JS -->
+      </div>
+    </section>
+
+    <!-- Panel derecho: cotización armada -->
+    <aside class="panel panel--quote" id="panel-quote">
+      <div class="panel__header">
+        <h2 class="panel__title">Cotización</h2>
+      </div>
+
+      <!-- Datos del cliente -->
+      <div class="quote-client">
+        <div class="form-group">
+          <label class="form-label" for="cliente-nombre">Cliente / Empresa</label>
+          <input class="form-input" type="text" id="cliente-nombre" placeholder="Nombre o empresa" />
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="cliente-proyecto">Proyecto</label>
+          <input class="form-input" type="text" id="cliente-proyecto" placeholder="Nombre del proyecto" />
+        </div>
+      </div>
+
+      <!-- Textos del documento -->
+      <div class="quote-textos">
+        <button class="quote-textos__toggle" id="btn-toggle-textos">
+          <span>Textos del documento</span>
+          <span class="quote-textos__arrow">▾</span>
+        </button>
+        <div class="quote-textos__body" id="textos-body">
+          <div class="form-group">
+            <textarea class="form-input form-textarea" id="texto-intro" rows="3"
+              placeholder="Introducción al proyecto…"></textarea>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="texto-tiempos">Tiempos de entrega</label>
+            <textarea class="form-input form-textarea" id="texto-tiempos" rows="3"
+              placeholder="Ej: Periodo de implementación de 7 días naturales…"></textarea>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="texto-terminos">Términos y condiciones</label>
+            <textarea class="form-input form-textarea" id="texto-terminos" rows="3"
+              placeholder="Ej: La licencia es de uso perpetuo…"></textarea>
+          </div>
+        </div>
+      </div>
+
+      <!-- Items seleccionados -->
+      <div class="quote-items" id="quote-items">
+        <p class="quote-empty">Seleccioná servicios y módulos del catálogo para armar la cotización.</p>
+      </div>
+
+      <!-- Impuestos -->
+      <div class="quote-impuestos">
+        <div class="quote-impuestos__row">
+          <label class="quote-impuestos__label">
+            <input type="checkbox" id="chk-iva" />
+            IVA (16%)
+          </label>
+        </div>
+        <div class="quote-impuestos__row">
+          <label class="quote-impuestos__label" for="inp-isr">ISR (%)</label>
+          <input class="form-input quote-impuestos__input" type="number" id="inp-isr" placeholder="0" min="0" step="0.01" />
+        </div>
+      </div>
+
+      <!-- Totales -->
+      <div class="quote-totals">
+        <div class="quote-totals__row">
+          <span>Subtotal</span>
+          <span id="total-subtotal">$0</span>
+        </div>
+        <div class="quote-totals__row" id="row-iva" style="display:none">
+          <span>IVA (16%)</span><span id="total-iva">$0</span>
+        </div>
+        <div class="quote-totals__row" id="row-isr" style="display:none">
+          <span>ISR</span><span id="total-isr">$0</span>
+        </div>
+        <div class="quote-totals__row quote-totals__row--total">
+          <span>Total</span>
+          <span id="total-final">$0</span>
+        </div>
+      </div>
+
+      <!-- Acciones -->
+      <div class="quote-actions">
+        <button class="btn btn--outline btn--block" id="btn-limpiar">Limpiar</button>
+        <button class="btn btn--primary btn--block" id="btn-exportar-pdf">Exportar PDF</button>
+      </div>
+    </aside>
+
+  </main>
+
+  <!-- ===== MODAL: Nuevo / Editar servicio ===== -->
+  <div class="modal-overlay" id="modal-servicio" hidden>
+    <div class="modal">
+      <div class="modal__header">
+        <h3 class="modal__title" id="modal-servicio-titulo">Nuevo servicio</h3>
+        <button class="modal__close" id="modal-servicio-cerrar">✕</button>
+      </div>
+      <div class="modal__body">
+        <input type="hidden" id="servicio-id" />
+        <div class="form-group">
+          <label class="form-label" for="servicio-nombre">Nombre del servicio</label>
+          <input class="form-input" type="text" id="servicio-nombre" placeholder="Ej: Página web corporativa" />
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="servicio-precio">Precio base ($)</label>
+          <input class="form-input" type="number" id="servicio-precio" placeholder="0" min="0" />
+        </div>
+
+        <div class="modulos-editor">
+          <div class="modulos-editor__header">
+            <span class="form-label">Módulos</span>
+            <button class="btn btn--ghost btn--sm" id="btn-agregar-modulo">+ Agregar módulo</button>
+          </div>
+          <div id="modulos-lista">
+            <!-- filas de módulo -->
+          </div>
+        </div>
+      </div>
+      <div class="modal__footer">
+        <button class="btn btn--outline" id="btn-modal-cancelar">Cancelar</button>
+        <button class="btn btn--primary" id="btn-modal-guardar">Guardar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- html2pdf para exportar -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>

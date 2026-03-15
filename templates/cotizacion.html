@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Segoe UI', Arial, sans-serif;
+    color: #1a1a2e;
+    font-size: 13.5px;
+    background: #fff;
+    padding: 48px 56px;
+    width: 210mm;
+  }
+
+  /* ---- Logo ---- */
+  .pdf-logo-area {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 40px;
+  }
+
+  .pdf-logo-placeholder {
+    width: 72px;
+    height: 72px;
+    border: 2px solid #1e6f80;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    color: #1e6f80;
+    font-weight: 700;
+    letter-spacing: .5px;
+    text-align: center;
+    line-height: 1.3;
+  }
+
+  /* ---- Título ---- */
+  .pdf-title {
+    text-align: center;
+    font-size: 17px;
+    font-weight: 700;
+    color: #1a1a2e;
+    margin-bottom: 36px;
+    line-height: 1.4;
+  }
+
+  /* ---- Sección con caja teal ---- */
+  .pdf-section {
+    margin-bottom: 28px;
+  }
+
+  .pdf-section__label {
+    font-size: 14px;
+    font-weight: 600;
+    color: #1a1a2e;
+    margin-bottom: 10px;
+  }
+
+  .pdf-box {
+    background: #1e6f80;
+    border-radius: 6px;
+    padding: 22px 26px;
+    color: #fff;
+    font-size: 13px;
+    line-height: 1.7;
+    min-height: 80px;
+  }
+
+  .pdf-box p { margin-bottom: 10px; }
+  .pdf-box p:last-child { margin-bottom: 0; }
+
+  /* ---- Tabla de precios ---- */
+  .pdf-table-wrap { margin-bottom: 28px; }
+
+  .pdf-table-label {
+    font-size: 14px;
+    font-weight: 600;
+    color: #1a1a2e;
+    margin-bottom: 10px;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    border: 1px solid #d0d0d0;
+  }
+
+  thead tr { background: #1e6f80; }
+
+  thead th {
+    padding: 10px 14px;
+    text-align: left;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .5px;
+    color: #fff;
+    border: 1px solid #1a6272;
+  }
+
+  thead th.col-precio { text-align: right; width: 120px; }
+  thead th.col-num    { width: 36px; text-align: center; }
+  thead th.col-tipo   { width: 120px; }
+
+  tbody tr { border-bottom: 1px solid #e8e8e8; }
+  tbody tr:last-child { border-bottom: none; }
+
+  tbody td {
+    padding: 10px 14px;
+    font-size: 13px;
+    color: #2d2d2d;
+    border: 1px solid #e8e8e8;
+    vertical-align: middle;
+  }
+
+  tbody td.col-num    { text-align: center; color: #999; font-size: 11px; }
+  tbody td.col-precio { text-align: right; font-weight: 700; color: #1e6f80; }
+  tbody td.col-tipo   { font-size: 11px; color: #777; }
+
+  tbody tr:nth-child(even) td { background: #f7fafb; }
+
+  /* Fila de total */
+  .total-row td {
+    background: #1e6f80 !important;
+    color: #fff !important;
+    font-weight: 700;
+    font-size: 14px;
+    border-color: #1a6272;
+  }
+  .total-row td.col-precio { color: #fff !important; font-size: 16px; }
+
+  /* ---- Footer ---- */
+  .pdf-footer {
+    margin-top: 40px;
+    padding-top: 14px;
+    border-top: 1px solid #e0e0e0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .pdf-footer__fecha { font-size: 11px; color: #aaa; }
+  .pdf-footer__nro   { font-size: 11px; color: #aaa; }
+</style>
+</head>
+<body>
+
+  <!-- Logo -->
+  <div class="pdf-logo-area">
+    {{LOGO}}
+  </div>
+
+  <!-- Título -->
+  <div class="pdf-title">
+    Cotización del proyecto "{{PROYECTO}}"<br/>para la empresa "{{CLIENTE}}"
+  </div>
+
+  <!-- Introducción -->
+  <div class="pdf-section">
+    <div class="pdf-section__label">Introducción al proyecto:</div>
+    <div class="pdf-box">{{INTRODUCCION}}</div>
+  </div>
+
+  <!-- Estructura operativa -->
+  <div class="pdf-section">
+    <div class="pdf-section__label">Estructura operativa y alcance:</div>
+    <div class="pdf-box">{{ESTRUCTURA}}</div>
+  </div>
+
+  <!-- Tabla de precios -->
+  <div class="pdf-table-wrap">
+    <div class="pdf-table-label">Tabla de precios:</div>
+    <table>
+      <thead>
+        <tr>
+          <th class="col-num">#</th>
+          <th>Descripción</th>
+          <th class="col-tipo">Tipo</th>
+          <th class="col-precio">Precio</th>
+        </tr>
+      </thead>
+      <tbody>
+        {{FILAS}}
+        <tr class="total-row">
+          <td class="col-num"></td>
+          <td colspan="2"><strong>Total estimado</strong></td>
+          <td class="col-precio">{{TOTAL}}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Tiempos de entrega -->
+  <div class="pdf-section">
+    <div class="pdf-section__label">Tiempos de entrega:</div>
+    <div class="pdf-box">{{TIEMPOS}}</div>
+  </div>
+
+  <!-- Términos y condiciones -->
+  <div class="pdf-section">
+    <div class="pdf-section__label">Términos y condiciones:</div>
+    <div class="pdf-box">{{TERMINOS}}</div>
+  </div>
+
+  <!-- Footer -->
+  <div class="pdf-footer">
+    <span class="pdf-footer__fecha">{{FECHA}}</span>
+    <span class="pdf-footer__nro">COT-{{NRO}}</span>
+  </div>
+
+</body>
+</html>
