@@ -2,6 +2,95 @@
    COTIS — Lógica principal
    ===================================================== */
 
+// ---- Configuración GitHub API ----
+const GH_ORG    = 'Geck-Codex';
+const GH_REPO   = 'cotizaciones';
+const GH_BRANCH = 'main';
+const GH_FILE   = 'data/servicios.json';
+const GH_API    = `https://api.github.com/repos/${GH_ORG}/${GH_REPO}/contents/${GH_FILE}`;
+
+let ghSha = null; // SHA actual del archivo en GitHub (necesario para actualizarlo)
+
+function getGHToken() { return localStorage.getItem('cotis_gh_token') || ''; }
+
+/** Muestra el estado de sincronización en el header */
+function setSyncStatus(estado) {
+  const el = document.getElementById('sync-status');
+  if (!el) return;
+  const estados = {
+    'idle':    { text: '',              cls: '' },
+    'syncing': { text: '↻ Guardando…', cls: 'sync--syncing' },
+    'synced':  { text: '✓ Guardado',   cls: 'sync--synced'  },
+    'error':   { text: '✗ Sin sync',   cls: 'sync--error'   },
+    'no-token':{ text: '⚙ Configurar', cls: 'sync--notoken' }
+  };
+  const s = estados[estado] || estados['idle'];
+  el.textContent  = s.text;
+  el.className    = `sync-status ${s.cls}`;
+}
+
+/** Carga servicios.json desde GitHub API */
+async function cargarDesdeGitHub() {
+  const token = getGHToken();
+  if (!token) return null;
+  try {
+    const headers = { Authorization: `token ${token}`, Accept: 'application/vnd.github.v3+json' };
+    const res = await fetch(`${GH_API}?ref=${GH_BRANCH}&t=${Date.now()}`, { headers });
+    if (!res.ok) return null;
+    const data = await res.json();
+    ghSha = data.sha;
+    const decoded = decodeURIComponent(escape(atob(data.content.replace(/\n/g, ''))));
+    return JSON.parse(decoded);
+  } catch (e) {
+    console.error('Error cargando desde GitHub:', e);
+    return null;
+  }
+}
+
+/** Guarda servicios en GitHub via API */
+async function guardarEnGitHub(serviciosData) {
+  const token = getGHToken();
+  if (!token) return;
+
+  setSyncStatus('syncing');
+  try {
+    const headers = {
+      Authorization: `token ${token}`,
+      Accept: 'application/vnd.github.v3+json',
+      'Content-Type': 'application/json'
+    };
+
+    // Si no tenemos SHA, lo obtenemos primero
+    if (!ghSha) {
+      const resGet = await fetch(`${GH_API}?ref=${GH_BRANCH}`, { headers });
+      if (resGet.ok) { const d = await resGet.json(); ghSha = d.sha; }
+    }
+
+    const contenidoStr = JSON.stringify({ servicios: serviciosData }, null, 2);
+    const contenidoB64 = btoa(unescape(encodeURIComponent(contenidoStr)));
+
+    const body = {
+      message: `Actualizar servicios [Cotis ${new Date().toLocaleString('es-MX')}]`,
+      content: contenidoB64,
+      branch:  GH_BRANCH
+    };
+    if (ghSha) body.sha = ghSha;
+
+    const resPut = await fetch(GH_API, { method: 'PUT', headers, body: JSON.stringify(body) });
+    if (!resPut.ok) {
+      const err = await resPut.json();
+      throw new Error(err.message || 'Error al guardar');
+    }
+    const result = await resPut.json();
+    ghSha = result.content.sha; // actualizar SHA con el nuevo
+    setSyncStatus('synced');
+  } catch (err) {
+    console.error('Error guardando en GitHub:', err);
+    setSyncStatus('error');
+    throw err;
+  }
+}
+
 // ---- Estado de la aplicación ----
 let servicios = [];     // datos cargados del JSON
 let paginaServicios = 1;              // página actual del catálogo
@@ -63,25 +152,47 @@ async function cargarDatos() {
  * por lo que este guardado es sólo en memoria durante la sesión.
  * Para persistencia real se requeriría un backend o localStorage.
  */
+/**
+ * Guarda en localStorage y sincroniza con GitHub si hay token.
+ */
 function guardarDatos() {
-  // En una app 100% estática no podemos escribir al JSON desde el navegador.
-  // Usamos localStorage como alternativa ligera para persistir cambios.
   localStorage.setItem('cotis_servicios', JSON.stringify(servicios));
+  guardarEnGitHub(servicios).catch(() => {}); // no bloquea la UI si falla
 }
 
 /**
- * Inicializa los datos: primero intenta localStorage (cambios del usuario),
- * si no existe carga el JSON original.
+ * Inicializa: intenta GitHub primero, luego localStorage, luego JSON local.
  */
 async function inicializar() {
+  setSyncStatus('syncing');
+
+  // 1. Intentar cargar desde GitHub
+  if (getGHToken()) {
+    const data = await cargarDesdeGitHub();
+    if (data) {
+      servicios = data.servicios;
+      localStorage.setItem('cotis_servicios', JSON.stringify(servicios));
+      paginaServicios = 1;
+      renderizarCatalogo();
+      setSyncStatus('synced');
+      return;
+    }
+    setSyncStatus('error');
+  } else {
+    setSyncStatus('no-token');
+  }
+
+  // 2. Fallback: localStorage
   const guardado = localStorage.getItem('cotis_servicios');
   if (guardado) {
     servicios = JSON.parse(guardado);
     paginaServicios = 1;
     renderizarCatalogo();
-  } else {
-    await cargarDatos();
+    return;
   }
+
+  // 3. Fallback: JSON local del repo
+  await cargarDatos();
 }
 
 /* =====================================================
@@ -865,6 +976,96 @@ document.getElementById('inp-isr').addEventListener('input', function() {
   cotizacion.isrPct = parseFloat(this.value) || 0;
   recalcularImpuestos();
 });
+
+// ---- GitHub config modal ----
+
+/** Abre el modal de configuración GitHub y pre-rellena el token guardado. */
+function abrirModalGH() {
+  const modal = document.getElementById('modal-gh-config');
+  document.getElementById('inp-gh-token').value = getGHToken();
+  document.getElementById('gh-test-result').textContent = '';
+  modal.hidden = false;
+}
+
+/** Cierra el modal de configuración GitHub. */
+function cerrarModalGH() {
+  document.getElementById('modal-gh-config').hidden = true;
+}
+
+// Abrir modal desde botón ⚙
+document.getElementById('btn-gh-config')
+  .addEventListener('click', abrirModalGH);
+
+// Abrir modal al hacer click en el badge "⚙ Configurar"
+document.getElementById('sync-status')
+  .addEventListener('click', function() {
+    if (this.classList.contains('sync--notoken') || this.classList.contains('sync--error')) {
+      abrirModalGH();
+    }
+  });
+
+// Cerrar modal con botón X
+document.getElementById('modal-gh-cerrar')
+  .addEventListener('click', cerrarModalGH);
+
+// Cerrar modal clickeando fuera
+document.getElementById('modal-gh-config')
+  .addEventListener('click', e => {
+    if (e.target === document.getElementById('modal-gh-config')) cerrarModalGH();
+  });
+
+// Guardar token
+document.getElementById('btn-gh-guardar-token')
+  .addEventListener('click', async () => {
+    const token = document.getElementById('inp-gh-token').value.trim();
+    if (token) {
+      localStorage.setItem('cotis_gh_token', token);
+    } else {
+      localStorage.removeItem('cotis_gh_token');
+    }
+    cerrarModalGH();
+    await inicializar();
+  });
+
+// Borrar token
+document.getElementById('btn-gh-borrar-token')
+  .addEventListener('click', () => {
+    localStorage.removeItem('cotis_gh_token');
+    document.getElementById('inp-gh-token').value = '';
+    document.getElementById('gh-test-result').textContent = 'Token eliminado.';
+    document.getElementById('gh-test-result').style.color = '#666';
+    setSyncStatus('no-token');
+  });
+
+// Probar conexión
+document.getElementById('btn-gh-test')
+  .addEventListener('click', async () => {
+    const token = document.getElementById('inp-gh-token').value.trim();
+    const resEl = document.getElementById('gh-test-result');
+    resEl.textContent = 'Probando…';
+    resEl.style.color = '#666';
+    if (!token) {
+      resEl.textContent = 'Ingresá un token primero.';
+      resEl.style.color = '#991b1b';
+      return;
+    }
+    try {
+      const res = await fetch(`${GH_API}?ref=${GH_BRANCH}&t=${Date.now()}`, {
+        headers: { Authorization: `token ${token}`, Accept: 'application/vnd.github.v3+json' }
+      });
+      if (res.ok) {
+        resEl.textContent = '✓ Conexión exitosa. El archivo existe y el token tiene acceso.';
+        resEl.style.color = '#166534';
+      } else {
+        const err = await res.json().catch(() => ({}));
+        resEl.textContent = `✗ Error ${res.status}: ${err.message || 'Sin acceso al repositorio.'}`;
+        resEl.style.color = '#991b1b';
+      }
+    } catch (e) {
+      resEl.textContent = '✗ Error de red. Verificá tu conexión.';
+      resEl.style.color = '#991b1b';
+    }
+  });
 
 /* =====================================================
    ARRANQUE
