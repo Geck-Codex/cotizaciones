@@ -87,6 +87,63 @@
       "nombre": "Punto de venta básico",
       "precio_base": 3000,
       "modulos": []
+    },
+    {
+      "id": 1773799220614,
+      "nombre": "Punto de venta",
+      "precio_base": 30000,
+      "modulos": [
+        {
+          "id": 1773799220858,
+          "nombre": "Terminal de Cobro Avanzada",
+          "precio": 25000
+        },
+        {
+          "id": 1773799220797,
+          "nombre": "•\tSistema de Gestión de Inventarios y Almacenes",
+          "precio": 22000
+        },
+        {
+          "id": 1773799220823,
+          "nombre": "•\tAdministración de Flujo de Efectivo y Blindaje de Caja",
+          "precio": 19000
+        },
+        {
+          "id": 1773799220924,
+          "nombre": "•\tFacturación Electrónica",
+          "precio": 21000
+        },
+        {
+          "id": 1773799220447,
+          "nombre": "•\tReportería de Inteligencia de Negocios y Analytics",
+          "precio": 19000
+        },
+        {
+          "id": 1773799220772,
+          "nombre": "•\tGestión de Créditos, Lealtad y Cartera de Clientes:",
+          "precio": 17000
+        },
+        {
+          "id": 1773799220552,
+          "nombre": "•\tGestión de Insumos y Recetas (Costeo de Producción)",
+          "precio": 14500
+        },
+        {
+          "id": 1773799220860,
+          "nombre": "•\tMódulo de Apartados y Gastos Externos:",
+          "precio": 13500
+        },
+        {
+          "id": 1773799220558,
+          "nombre": "•\tSincronización Multi-Caja y Conector de Periféricos",
+          "precio": 16000
+        },
+        {
+          "id": 1773799220937,
+          "nombre": "•\tMódulo de Promociones y Catálogo Digital QR:",
+          "precio": 13000
+        }
+      ]
     }
   ]
 }
