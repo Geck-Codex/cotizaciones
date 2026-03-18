@@ -75,6 +75,12 @@
           "precio": 2000
         }
       ]
+    },
+    {
+      "id": 1773798680491,
+      "nombre": "Landing Page",
+      "precio_base": 2000,
+      "modulos": []
     }
   ]
 }
