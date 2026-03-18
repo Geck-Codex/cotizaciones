@@ -144,6 +144,12 @@
           "precio": 13000
         }
       ]
+    },
+    {
+      "id": 1773799280439,
+      "nombre": "Chat Bot",
+      "precio_base": 15000,
+      "modulos": []
     }
   ]
 }
