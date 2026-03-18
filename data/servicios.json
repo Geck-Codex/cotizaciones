@@ -81,6 +81,12 @@
       "nombre": "Página web básica",
       "precio_base": 2000,
       "modulos": []
+    },
+    {
+      "id": 1773798961117,
+      "nombre": "Punto de venta básico",
+      "precio_base": 3000,
+      "modulos": []
     }
   ]
 }
